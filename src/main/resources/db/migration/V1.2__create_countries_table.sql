@@ -1,0 +1,5 @@
+create table COUNTRIES
+(
+    ID      SERIAL PRIMARY KEY,
+    COUNTRY VARCHAR(255) UNIQUE NOT NULL
+);

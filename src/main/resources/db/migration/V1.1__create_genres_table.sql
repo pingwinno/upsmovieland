@@ -1,0 +1,5 @@
+create table GENRES
+(
+    ID         SERIAL PRIMARY KEY,
+    GENRE_NAME VARCHAR(255) UNIQUE NOT NULL
+);
