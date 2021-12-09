@@ -3,21 +3,25 @@ package com.study.mapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class MovieMapperTest {
-
-    private final ResultSet rs = mock(ResultSet.class);
-
-    private final MovieMapper mapper = new MovieMapper();
+    @Mock
+    private ResultSet rs;
+    @InjectMocks
+    private MovieMapper mapper;
 
     @BeforeEach
     void init() throws SQLException {
