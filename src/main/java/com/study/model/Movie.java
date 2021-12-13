@@ -1,7 +1,6 @@
 package com.study.model;
 
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
 
 @Data
 public class Movie {

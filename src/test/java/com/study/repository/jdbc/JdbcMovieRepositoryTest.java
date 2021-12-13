@@ -20,7 +20,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -79,7 +79,7 @@ public class JdbcMovieRepositoryTest {
     @Test
     @DataSet(value = "datasets/two_movies_without_description.yml")
     void givenMovieEntities_whenFindByIds_thenReturnTwoMovieEntities() {
-        var movies = movieRepository.findByIds(List.of(1, 2));
+        var movies = movieRepository.findByIds(Set.of(1, 2));
         assertFalse(movies.isEmpty());
         var firstMovie = movies.get(0);
         assertEquals(1, firstMovie.getId());

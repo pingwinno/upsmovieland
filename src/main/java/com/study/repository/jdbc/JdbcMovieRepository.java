@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 @Repository
@@ -34,7 +35,7 @@ public class JdbcMovieRepository implements MovieRepository {
     }
 
     @Override
-    public List<Movie> findByIds(List<Integer> ids) {
+    public List<Movie> findByIds(Set<Integer> ids) {
         var stringJoiner = new StringJoiner(",", " (", ");");
         for (int i = 0; i < ids.size(); i++) {
             stringJoiner.add("?");
