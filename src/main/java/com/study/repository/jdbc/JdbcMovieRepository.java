@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public class JdbcMovieRepository implements MovieRepository {
-    private final static String SELECT_ALL = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, DESCRIPTION, RATING, PRICE, POSTER_LINK FROM MOVIES;";
+    private final static String SELECT_ALL = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES;";
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Movie> rowMapper;
 

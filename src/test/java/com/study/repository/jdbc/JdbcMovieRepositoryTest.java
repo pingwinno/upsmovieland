@@ -1,40 +1,62 @@
 package com.study.repository.jdbc;
 
-import com.study.mapper.MovieMapper;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+
+import com.github.database.rider.core.api.configuration.DBUnit;
+import com.github.database.rider.core.api.configuration.Orthography;
+import com.github.database.rider.core.api.dataset.DataSet;
+import com.github.database.rider.core.api.dataset.ExpectedDataSet;
+import com.github.database.rider.junit5.api.DBRider;
+import com.study.configuration.RootConfig;
+import com.study.repository.jdbc.mapper.MovieMapper;
+import lombok.SneakyThrows;
+import org.dbunit.ext.mysql.MySqlMetadataHandler;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Testcontainers
-class JdbcMovieRepositoryTest {
-
+@DBRider
+@SpringJUnitConfig
+@DBUnit(schema = "movie_store", caseSensitiveTableNames = true)
+@ContextConfiguration(classes = {RootConfig.class})
+public class JdbcMovieRepositoryTest {
+    public static final String DB_USER = "root";
+    public static final String DB_PASSWORD = "secret";
     @Container
-    private PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres")
-            .withDatabaseName("movieland")
-            .withUsername("foo")
-            .withPassword("secret");
+    private static PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres")
+            .withDatabaseName("movie_store")
+            .withUsername(DB_USER)
+            .withPassword(DB_PASSWORD);
+    @Autowired
+    private DataSource dataSource;
     private JdbcMovieRepository movieRepository;
-    private HikariDataSource dataSource;
 
+
+    @DynamicPropertySource
+    static void setDynamicProperties(DynamicPropertyRegistry registry) {
+        registry.add("db.url", () -> postgresqlContainer.getJdbcUrl());
+        registry.add("db.username", () -> DB_USER);
+        registry.add("db.password", () -> DB_PASSWORD);
+        registry.add("db.driver.class", () -> postgresqlContainer.getDriverClassName());
+    }
+
+    @SneakyThrows
     @BeforeEach
     void init() {
-        var config = new HikariConfig();
-        config.setUsername(postgresqlContainer.getUsername());
-        config.setJdbcUrl(postgresqlContainer.getJdbcUrl());
-        config.setDriverClassName(postgresqlContainer.getDriverClassName());
-        config.setPassword(postgresqlContainer.getPassword());
-        dataSource = new HikariDataSource(config);
         Flyway flyway = Flyway.configure()
-                              .locations("/db/test")
                               .dataSource(dataSource)
                               .load();
         flyway.migrate();
@@ -42,7 +64,7 @@ class JdbcMovieRepositoryTest {
     }
 
     @Test
-    @FlywayTest
+    @DataSet(value = "datasets/movies_without_description.yml")
     void givenMovieEntity_whenGetAll_thenReturnMovieEntity() {
         var movies = movieRepository.getAllMovies();
         assertFalse(movies.isEmpty());

@@ -17,11 +17,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class MovieServiceTest {
+class DefaultMovieServiceTest {
     @Mock
     private MovieRepository movieRepository;
     @InjectMocks
-    private MovieService movieService;
+    private DefaultMovieService movieService;
 
     @Test
     void when_callGetAllMovies_then_returnListOfMovies() {
