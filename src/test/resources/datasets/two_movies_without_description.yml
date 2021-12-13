@@ -1,0 +1,15 @@
+movies:
+  - name_russian: "Прибытие поезда на вокзал Ла-Сьота"
+    name_native: "The Arrival of a Train"
+    release_date: 1896
+    description: "Первый фильм в истории кинемагографа"
+    rating: 9.9
+    price: 19.99
+    poster_link: "http://link.com"
+  - name_russian: "Прибытие поезда на вокзал Ла-Сьота2"
+    name_native: "The Arrival of a Train2"
+    release_date: 1896
+    description: "Первый фильм в истории кинемагографа"
+    rating: 9.9
+    price: 19.99
+    poster_link: "http://link.com2"

@@ -26,13 +26,13 @@ class DefaultMovieServiceTest {
     @Test
     void when_callGetAllMovies_then_returnListOfMovies() {
         var expectedMovie = new Movie();
-        when(movieRepository.getAllMovies())
+        when(movieRepository.findAll())
                 .thenReturn(List.of(expectedMovie));
         var movieList = movieService.getAllMovies();
         assertFalse(movieList.isEmpty());
         var actualMovie = movieList.get(0);
         assertEquals(expectedMovie, actualMovie);
-        verify(movieRepository).getAllMovies();
+        verify(movieRepository).findAll();
         verifyNoMoreInteractions(movieRepository);
     }
 }
