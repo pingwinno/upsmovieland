@@ -2,22 +2,19 @@ package com.study.repository.jdbc;
 
 
 import com.github.database.rider.core.api.configuration.DBUnit;
-import com.github.database.rider.core.api.configuration.Orthography;
 import com.github.database.rider.core.api.dataset.DataSet;
-import com.github.database.rider.core.api.dataset.ExpectedDataSet;
 import com.github.database.rider.junit5.api.DBRider;
 import com.study.configuration.RootConfig;
-import com.study.repository.jdbc.mapper.MovieMapper;
 import lombok.SneakyThrows;
-import org.dbunit.ext.mysql.MySqlMetadataHandler;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -29,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Testcontainers
 @DBRider
-@SpringJUnitConfig
+@ExtendWith(SpringExtension.class)
 @DBUnit(schema = "movie_store", caseSensitiveTableNames = true)
 @ContextConfiguration(classes = {RootConfig.class})
 public class JdbcMovieRepositoryTest {
@@ -42,6 +39,7 @@ public class JdbcMovieRepositoryTest {
             .withPassword(DB_PASSWORD);
     @Autowired
     private DataSource dataSource;
+    @Autowired
     private JdbcMovieRepository movieRepository;
 
 
@@ -60,7 +58,6 @@ public class JdbcMovieRepositoryTest {
                               .dataSource(dataSource)
                               .load();
         flyway.migrate();
-        movieRepository = new JdbcMovieRepository(dataSource, new MovieMapper());
     }
 
     @Test
