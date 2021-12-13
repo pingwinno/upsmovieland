@@ -63,7 +63,7 @@ public class JdbcMovieRepositoryTest {
     @Test
     @DataSet(value = "datasets/movies_without_description.yml")
     void givenMovieEntity_whenGetAll_thenReturnMovieEntity() {
-        var movies = movieRepository.getAllMovies();
+        var movies = movieRepository.findAll();
         assertFalse(movies.isEmpty());
         var movieObject = movies.get(0);
         assertEquals(1, movieObject.getId());
