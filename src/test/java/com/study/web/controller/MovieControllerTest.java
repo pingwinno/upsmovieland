@@ -76,11 +76,23 @@ class MovieControllerTest {
     }
 
     @Test
-    void when_getRandomMoviesAndThrowNotFoundException_then_return404() throws Exception {
+    void when_getMoviesByGenreId_then_returnMovies() throws Exception {
+        var expectedMovie = new Movie();
 
-        Mockito.when(movieServiceMock.getThreeRandomMovies())
-               .thenThrow(NotFoundException.class);
-        mockMvc.perform(get("/movies/random"))
-               .andExpect(status().isNotFound());
+        expectedMovie.setId(1);
+        expectedMovie.setNameRussian("Прибытие поезда на вокзал Ла-Сьота");
+        expectedMovie.setNameNative("The Arrival of a Train");
+        expectedMovie.setYearOfRelease(1896);
+        expectedMovie.setRating(9.9);
+        expectedMovie.setPrice(19.99);
+        expectedMovie.setPicturePath("http://link.com");
+        ObjectMapper objectMapper = new ObjectMapper();
+        var jsonMovieList = objectMapper.writeValueAsString(List.of(expectedMovie));
+        Mockito.when(movieServiceMock.getByGenreId(1))
+               .thenReturn(List.of(expectedMovie));
+        mockMvc.perform(get("/movies/genre/1"))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(content().json(jsonMovieList));
     }
 }

@@ -7,5 +7,7 @@ import java.util.List;
 public interface MovieRepository {
     List<Movie> findAll();
 
+    List<Movie> findByGenreId(Integer genreId);
+
     List<Movie> findRandom(Integer numberOfMovies);
 }

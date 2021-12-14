@@ -3,6 +3,7 @@ package com.study.web.controller;
 import com.study.movie.model.Movie;
 import com.study.movie.service.MovieService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,5 +26,10 @@ public class MovieController {
     @GetMapping(path = "/random", produces = "application/json")
     public List<Movie> getThreeRandomMovies() {
         return movieService.getThreeRandomMovies();
+    }
+
+    @GetMapping(path = "/genre/{genreId}", produces = "application/json")
+    public List<Movie> getThreeRandomMovies(@PathVariable Integer genreId) {
+        return movieService.getByGenreId(genreId);
     }
 }

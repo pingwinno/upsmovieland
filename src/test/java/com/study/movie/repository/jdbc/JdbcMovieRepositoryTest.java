@@ -97,4 +97,19 @@ public class JdbcMovieRepositoryTest {
         assertEquals(19.99, movieObject.getPrice());
         assertEquals("http://link.com", movieObject.getPicturePath());
     }
+
+    @Test
+    @DataSet(value = "datasets/movies_with_genre.yml")
+    void givenGenreId_whenFindByGenreId_thenReturnMovieEntity() {
+        var movies = movieRepository.findByGenreId(1);
+        assertFalse(movies.isEmpty());
+        var movieObject = movies.get(0);
+        assertEquals(1, movieObject.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота", movieObject.getNameRussian());
+        assertEquals("The Arrival of a Train", movieObject.getNameNative());
+        assertEquals(1896, movieObject.getYearOfRelease());
+        assertEquals(9.9, movieObject.getRating());
+        assertEquals(19.99, movieObject.getPrice());
+        assertEquals("http://link.com", movieObject.getPicturePath());
+    }
 }
