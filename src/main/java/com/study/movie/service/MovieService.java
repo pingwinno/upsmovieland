@@ -1,11 +1,11 @@
-package com.study.service;
+package com.study.movie.service;
 
-import com.study.model.Movie;
+import com.study.movie.model.Movie;
 
 import java.util.List;
 
 public interface MovieService {
-    List<Movie> getAllMovies();
+    List<Movie> getAll();
 
     List<Movie> getThreeRandomMovies();
 }

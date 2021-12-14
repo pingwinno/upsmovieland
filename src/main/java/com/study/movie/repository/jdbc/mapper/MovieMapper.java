@@ -1,6 +1,6 @@
-package com.study.repository.jdbc.mapper;
+package com.study.movie.repository.jdbc.mapper;
 
-import com.study.model.Movie;
+import com.study.movie.model.Movie;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 

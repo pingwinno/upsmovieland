@@ -1,10 +1,11 @@
-package com.study.repository.jdbc;
+package com.study.movie.repository.jdbc;
 
 
 import com.github.database.rider.core.api.configuration.DBUnit;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.api.DBRider;
 import com.study.configuration.RootConfig;
+import com.study.movie.repository.jdbc.JdbcMovieRepository;
 import lombok.SneakyThrows;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;

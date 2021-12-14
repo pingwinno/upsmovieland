@@ -1,6 +1,6 @@
-package com.study.repository;
+package com.study.movie.repository;
 
-import com.study.model.Movie;
+import com.study.movie.model.Movie;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.study.web.controller;
 
-import com.study.model.Movie;
-import com.study.service.MovieService;
+import com.study.movie.model.Movie;
+import com.study.movie.service.MovieService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +19,7 @@ public class MovieController {
 
     @GetMapping(produces = "application/json")
     public List<Movie> getAllMovies() {
-        return movieService.getAllMovies();
+        return movieService.getAll();
     }
 
     @GetMapping(path = "/random", produces = "application/json")

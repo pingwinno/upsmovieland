@@ -1,7 +1,7 @@
-package com.study.service;
+package com.study.movie.service;
 
-import com.study.model.Movie;
-import com.study.repository.MovieRepository;
+import com.study.movie.model.Movie;
+import com.study.movie.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public List<Movie> getAllMovies() {
+    public List<Movie> getAll() {
         return movieRepository.findAll();
     }
 

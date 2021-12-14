@@ -1,15 +1,14 @@
-package com.study.repository.jdbc;
+package com.study.movie.repository.jdbc;
 
-import com.study.model.Movie;
-import com.study.repository.MovieRepository;
-import com.study.repository.jdbc.mapper.MovieMapper;
+import com.study.movie.model.Movie;
+import com.study.movie.repository.MovieRepository;
+import com.study.movie.repository.jdbc.mapper.MovieMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 public class JdbcMovieRepository implements MovieRepository {

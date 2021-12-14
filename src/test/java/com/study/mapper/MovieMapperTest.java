@@ -1,6 +1,6 @@
 package com.study.mapper;
 
-import com.study.repository.jdbc.mapper.MovieMapper;
+import com.study.movie.repository.jdbc.mapper.MovieMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

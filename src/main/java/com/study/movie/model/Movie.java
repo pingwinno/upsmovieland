@@ -1,14 +1,14 @@
-package com.study.model;
+package com.study.movie.model;
 
 import lombok.Data;
 
 @Data
 public class Movie {
-    private int id;
+    private Integer id;
     private String nameRussian;
     private String nameNative;
-    private int yearOfRelease;
-    private double rating;
-    private double price;
+    private Integer yearOfRelease;
+    private Double rating;
+    private Double price;
     private String picturePath;
 }

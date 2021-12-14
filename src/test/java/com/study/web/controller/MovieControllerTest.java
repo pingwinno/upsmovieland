@@ -2,9 +2,8 @@ package com.study.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.exception.NotFoundException;
-import com.study.model.Movie;
-import com.study.service.MovieService;
-import com.study.web.controller.MovieController;
+import com.study.movie.model.Movie;
+import com.study.movie.service.MovieService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -47,7 +46,7 @@ class MovieControllerTest {
         expectedMovie.setPicturePath("http://link.com");
         ObjectMapper objectMapper = new ObjectMapper();
         var jsonMovieList = objectMapper.writeValueAsString(List.of(expectedMovie));
-        Mockito.when(movieServiceMock.getAllMovies())
+        Mockito.when(movieServiceMock.getAll())
                .thenReturn(List.of(expectedMovie));
         mockMvc.perform(get("/movies"))
                .andExpect(status().isOk())
