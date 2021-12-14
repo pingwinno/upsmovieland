@@ -41,6 +41,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.7</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.13.0</version>
@@ -120,7 +126,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.3.13</version>
+            <version>${spring-mvc.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -3,25 +3,24 @@ package com.study.repository.jdbc;
 import com.study.model.Movie;
 import com.study.repository.MovieRepository;
 import com.study.repository.jdbc.mapper.MovieMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class JdbcMovieRepository implements MovieRepository {
     private final static String SELECT_ALL = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES;";
-    private final static String SELECT_BY_IDS = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES WHERE ID IN ";
-    private final static String COUNT = "SELECT COUNT(ID) FROM MOVIES;";
-    private final JdbcTemplate jdbcTemplate;
+    private final static String SELECT_RANDOM = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES  ORDER BY random() LIMIT :count";
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final RowMapper<Movie> rowMapper = new MovieMapper();
 
-    public JdbcMovieRepository(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+
+    public JdbcMovieRepository(NamedParameterJdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -30,17 +29,7 @@ public class JdbcMovieRepository implements MovieRepository {
     }
 
     @Override
-    public int count() {
-        return jdbcTemplate.queryForObject(COUNT, Integer.class);
-    }
-
-    @Override
-    public List<Movie> findByIds(Set<Integer> ids) {
-        var stringJoiner = new StringJoiner(",", " (", ");");
-        for (int i = 0; i < ids.size(); i++) {
-            stringJoiner.add("?");
-        }
-        String queryString = SELECT_BY_IDS + stringJoiner;
-        return jdbcTemplate.query(queryString, rowMapper, ids.toArray());
+    public List<Movie> findRandom(Integer numberOfMovies) {
+        return jdbcTemplate.query(SELECT_RANDOM, Map.of("count", numberOfMovies), rowMapper);
     }
 }

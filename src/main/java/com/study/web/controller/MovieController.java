@@ -1,4 +1,4 @@
-package com.study.controller;
+package com.study.web.controller;
 
 import com.study.model.Movie;
 import com.study.service.MovieService;

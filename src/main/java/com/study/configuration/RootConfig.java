@@ -9,14 +9,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = "com.study", excludeFilters = {@ComponentScan.Filter(
-        type = FilterType.ANNOTATION,
-        value = RestController.class)
+        type = FilterType.ASPECTJ,
+        pattern = "com.study.web.*")
 })
 @PropertySource("classpath:application.properties")
 public class RootConfig {
@@ -43,8 +43,7 @@ public class RootConfig {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
+    public NamedParameterJdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new NamedParameterJdbcTemplate(dataSource);
     }
-
 }

@@ -1,9 +1,10 @@
-package com.study.controller;
+package com.study.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.exception.NotFoundException;
 import com.study.model.Movie;
 import com.study.service.MovieService;
+import com.study.web.controller.MovieController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

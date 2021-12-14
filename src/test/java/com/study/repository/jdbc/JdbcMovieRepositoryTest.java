@@ -7,6 +7,7 @@ import com.github.database.rider.junit5.api.DBRider;
 import com.study.configuration.RootConfig;
 import lombok.SneakyThrows;
 import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +21,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -42,6 +42,7 @@ public class JdbcMovieRepositoryTest {
     private DataSource dataSource;
     @Autowired
     private JdbcMovieRepository movieRepository;
+    private Flyway flyway;
 
 
     @DynamicPropertySource
@@ -55,10 +56,15 @@ public class JdbcMovieRepositoryTest {
     @SneakyThrows
     @BeforeEach
     void init() {
-        Flyway flyway = Flyway.configure()
-                              .dataSource(dataSource)
-                              .load();
+        flyway = Flyway.configure()
+                       .dataSource(dataSource)
+                       .load();
         flyway.migrate();
+    }
+
+    @AfterEach
+    void clean() {
+        flyway.clean();
     }
 
     @Test
@@ -77,37 +83,17 @@ public class JdbcMovieRepositoryTest {
     }
 
     @Test
-    @DataSet(value = "datasets/two_movies_without_description.yml")
-    void givenMovieEntities_whenFindByIds_thenReturnTwoMovieEntities() {
-        var movies = movieRepository.findByIds(Set.of(1, 2));
-        assertFalse(movies.isEmpty());
-        var firstMovie = movies.get(0);
-        assertEquals(1, firstMovie.getId());
-        assertEquals("Прибытие поезда на вокзал Ла-Сьота", firstMovie.getNameRussian());
-        assertEquals("The Arrival of a Train", firstMovie.getNameNative());
-        assertEquals(1896, firstMovie.getYearOfRelease());
-        assertEquals(9.9, firstMovie.getRating());
-        assertEquals(19.99, firstMovie.getPrice());
-        assertEquals("http://link.com", firstMovie.getPicturePath());
-        var secondMovie = movies.get(1);
-        assertEquals(2, secondMovie.getId());
-        assertEquals("Прибытие поезда на вокзал Ла-Сьота2", secondMovie.getNameRussian());
-        assertEquals("The Arrival of a Train2", secondMovie.getNameNative());
-        assertEquals(1896, secondMovie.getYearOfRelease());
-        assertEquals(9.9, secondMovie.getRating());
-        assertEquals(19.99, secondMovie.getPrice());
-        assertEquals("http://link.com2", secondMovie.getPicturePath());
-    }
-
-    @Test
     @DataSet(value = "datasets/movie_without_description.yml")
-    void givenMovieEntity_whenCount_thenReturnOne() {
-        assertEquals(1, movieRepository.count());
-    }
-
-    @Test
-    @DataSet(value = "datasets/two_movies_without_description.yml")
-    void givenMovieEntity_whenCount_thenReturnTwo() {
-        assertEquals(2, movieRepository.count());
+    void givenMovieEntity_whenFindRandom_thenReturnMovieEntity() {
+        var movies = movieRepository.findRandom(1);
+        assertFalse(movies.isEmpty());
+        var movieObject = movies.get(0);
+        assertEquals(1, movieObject.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота", movieObject.getNameRussian());
+        assertEquals("The Arrival of a Train", movieObject.getNameNative());
+        assertEquals(1896, movieObject.getYearOfRelease());
+        assertEquals(9.9, movieObject.getRating());
+        assertEquals(19.99, movieObject.getPrice());
+        assertEquals("http://link.com", movieObject.getPicturePath());
     }
 }
