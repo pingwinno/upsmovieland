@@ -5,7 +5,8 @@ import com.github.database.rider.core.api.configuration.DBUnit;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.api.DBRider;
 import com.study.configuration.RootConfig;
-import com.study.movie.repository.jdbc.JdbcMovieRepository;
+import com.study.movie.model.Order;
+import com.study.movie.model.OrderCriteria;
 import lombok.SneakyThrows;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -111,5 +112,86 @@ public class JdbcMovieRepositoryTest {
         assertEquals(9.9, movieObject.getRating());
         assertEquals(19.99, movieObject.getPrice());
         assertEquals("http://link.com", movieObject.getPicturePath());
+    }
+
+    @Test
+    @DataSet(value = "datasets/two_movies_without_description.yml")
+    void givenOrderByPriceDesc_whenFindAllAndOrderBy_thenReturnMovieEntitiesOrderedByPriceDesc() {
+        var orderByPriceDesc = OrderCriteria.builder()
+                                            .column("price")
+                                            .order(Order.DESC)
+                                            .build();
+        var movies = movieRepository.findAllAndOrderBy(orderByPriceDesc);
+        assertFalse(movies.isEmpty());
+        var firstMovie = movies.get(0);
+        assertEquals(2, firstMovie.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота2", firstMovie.getNameRussian());
+        assertEquals("The Arrival of a Train2", firstMovie.getNameNative());
+        assertEquals(1897, firstMovie.getYearOfRelease());
+        assertEquals(9.9, firstMovie.getRating());
+        assertEquals(29.99, firstMovie.getPrice());
+        assertEquals("http://link.com2", firstMovie.getPicturePath());
+        var secondMovie = movies.get(1);
+        assertEquals(1, secondMovie.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота", secondMovie.getNameRussian());
+        assertEquals("The Arrival of a Train", secondMovie.getNameNative());
+        assertEquals(1896, secondMovie.getYearOfRelease());
+        assertEquals(8.9, secondMovie.getRating());
+        assertEquals(19.99, secondMovie.getPrice());
+        assertEquals("http://link.com", secondMovie.getPicturePath());
+    }
+
+    @Test
+    @DataSet(value = "datasets/two_movies_without_description.yml")
+    void givenOrderByPriceAsc_whenFindAllAndOrderBy_thenReturnMovieEntitiesOrderedByPriceAsc() {
+        var orderByPriceDesc = OrderCriteria.builder()
+                                            .column("price")
+                                            .order(Order.ASK)
+                                            .build();
+        var movies = movieRepository.findAllAndOrderBy(orderByPriceDesc);
+        assertFalse(movies.isEmpty());
+        var firstMovie = movies.get(0);
+        assertEquals(1, firstMovie.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота", firstMovie.getNameRussian());
+        assertEquals("The Arrival of a Train", firstMovie.getNameNative());
+        assertEquals(1896, firstMovie.getYearOfRelease());
+        assertEquals(8.9, firstMovie.getRating());
+        assertEquals(19.99, firstMovie.getPrice());
+        assertEquals("http://link.com", firstMovie.getPicturePath());
+        var secondMovie = movies.get(1);
+        assertEquals(2, secondMovie.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота2", secondMovie.getNameRussian());
+        assertEquals("The Arrival of a Train2", secondMovie.getNameNative());
+        assertEquals(1897, secondMovie.getYearOfRelease());
+        assertEquals(9.9, secondMovie.getRating());
+        assertEquals(29.99, secondMovie.getPrice());
+        assertEquals("http://link.com2", secondMovie.getPicturePath());
+    }
+
+    @Test
+    @DataSet(value = "datasets/two_movies_without_description.yml")
+    void givenOrderByRatingDesc_whenFindAllAndOrderBy_thenReturnMovieEntitiesOrderedByRatingDesc() {
+        var orderByPriceDesc = OrderCriteria.builder()
+                                            .column("rating")
+                                            .order(Order.DESC)
+                                            .build();
+        var movies = movieRepository.findAllAndOrderBy(orderByPriceDesc);
+        assertFalse(movies.isEmpty());
+        var firstMovie = movies.get(0);
+        assertEquals(2, firstMovie.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота2", firstMovie.getNameRussian());
+        assertEquals("The Arrival of a Train2", firstMovie.getNameNative());
+        assertEquals(1897, firstMovie.getYearOfRelease());
+        assertEquals(9.9, firstMovie.getRating());
+        assertEquals(29.99, firstMovie.getPrice());
+        assertEquals("http://link.com2", firstMovie.getPicturePath());
+        var secondMovie = movies.get(1);
+        assertEquals(1, secondMovie.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота", secondMovie.getNameRussian());
+        assertEquals("The Arrival of a Train", secondMovie.getNameNative());
+        assertEquals(1896, secondMovie.getYearOfRelease());
+        assertEquals(8.9, secondMovie.getRating());
+        assertEquals(19.99, secondMovie.getPrice());
+        assertEquals("http://link.com", secondMovie.getPicturePath());
     }
 }

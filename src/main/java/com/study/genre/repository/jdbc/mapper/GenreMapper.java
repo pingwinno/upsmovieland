@@ -1,7 +1,6 @@
 package com.study.genre.repository.jdbc.mapper;
 
 import com.study.genre.model.Genre;
-import com.study.movie.model.Movie;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 

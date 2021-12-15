@@ -1,6 +1,7 @@
 package com.study.movie.repository.jdbc;
 
 import com.study.movie.model.Movie;
+import com.study.movie.model.OrderCriteria;
 import com.study.movie.repository.MovieRepository;
 import com.study.movie.repository.jdbc.mapper.MovieMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,9 +15,9 @@ import java.util.Map;
 public class JdbcMovieRepository implements MovieRepository {
     private final static String SELECT_ALL = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES;";
     private final static String SELECT_BY_GENRE_ID = "SELECT MOVIES.ID, MOVIES.NAME_RUSSIAN, MOVIES.NAME_NATIVE, MOVIES.RELEASE_DATE, MOVIES.RATING, MOVIES.PRICE, MOVIES.POSTER_LINK FROM MOVIES" +
-            " JOIN GENRE_TO_MOVIE gtm ON MOVIES.ID = gtm.MOVIE_ID " +
-            " WHERE gtm.GENRE_ID = :genreId;";
-    private final static String SELECT_RANDOM = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES  ORDER BY random() LIMIT :count";
+            " JOIN GENRE_TO_MOVIE gtm ON MOVIES.ID = gtm.MOVIE_ID WHERE gtm.GENRE_ID = :genreId;";
+    private final static String SELECT_RANDOM = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES ORDER BY random() LIMIT :count";
+    private final static String SORT_BY = "SELECT ID, NAME_RUSSIAN, NAME_NATIVE, RELEASE_DATE, RATING, PRICE, POSTER_LINK FROM MOVIES ORDER BY";
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final RowMapper<Movie> rowMapper = new MovieMapper();
 
@@ -37,5 +38,12 @@ public class JdbcMovieRepository implements MovieRepository {
     @Override
     public List<Movie> findRandom(Integer numberOfMovies) {
         return jdbcTemplate.query(SELECT_RANDOM, Map.of("count", numberOfMovies), rowMapper);
+    }
+
+    @Override
+    public List<Movie> findAllAndOrderBy(OrderCriteria orderCriteria) {
+        var queryString = String.join(" ", SORT_BY, orderCriteria.getColumn(), orderCriteria.getOrder()
+                                                                                            .getOrderName());
+        return jdbcTemplate.query(queryString, rowMapper);
     }
 }
