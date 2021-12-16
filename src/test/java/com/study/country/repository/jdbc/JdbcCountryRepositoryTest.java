@@ -1,4 +1,4 @@
-package com.study.genre.repository.jdbc;
+package com.study.country.repository.jdbc;
 
 import com.github.database.rider.core.api.configuration.DBUnit;
 import com.github.database.rider.core.api.dataset.DataSet;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ExtendWith(SpringExtension.class)
 @DBUnit(schema = "movie_store", caseSensitiveTableNames = true)
 @ContextConfiguration(classes = {RootConfig.class})
-class JdbcGenreRepositoryTest {
+class JdbcCountryRepositoryTest {
     public static final String DB_USER = "root";
     public static final String DB_PASSWORD = "secret";
     private static final PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres")
@@ -40,7 +40,7 @@ class JdbcGenreRepositoryTest {
     @Autowired
     private DataSource dataSource;
     @Autowired
-    private JdbcGenreRepository genreRepository;
+    private JdbcCountryRepository countryRepository;
     private Flyway flyway;
 
     @BeforeAll
@@ -71,22 +71,22 @@ class JdbcGenreRepositoryTest {
     }
 
     @Test
-    @DataSet(value = "datasets/genre_entity.yml")
+    @DataSet(value = "datasets/country_entity.yml")
     void givenGenreEntity_whenFindAll_thenReturnGenreEntity() {
-        var genres = genreRepository.findAll();
-        assertFalse(genres.isEmpty());
-        var genreObject = genres.get(0);
+        var countries = countryRepository.findAll();
+        assertFalse(countries.isEmpty());
+        var genreObject = countries.get(0);
         assertEquals(1, genreObject.getId());
-        assertEquals("genre1", genreObject.getName());
+        assertEquals("США", genreObject.getName());
     }
 
     @Test
     @DataSet(value = "datasets/movies_with_genre_and_country.yml")
     void givenGenreEntity_whenFindAllByMovieId_thenReturnGenreEntity() {
-        var genres = genreRepository.findAllByMovieId(1);
-        assertFalse(genres.isEmpty());
-        var genreObject = genres.get(0);
+        var countries = countryRepository.findAllByMovieId(1);
+        assertFalse(countries.isEmpty());
+        var genreObject = countries.get(0);
         assertEquals(1, genreObject.getId());
-        assertEquals("genre1", genreObject.getName());
+        assertEquals("США", genreObject.getName());
     }
 }

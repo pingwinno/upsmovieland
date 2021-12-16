@@ -19,10 +19,15 @@ public class CachedGenreRepository implements GenreRepository {
     private int renewTime;
     @Autowired
     private GenreRepository jdbcGenreRepository;
-    private Set<Genre> genreCache = new CopyOnWriteArraySet<>();
+    private final Set<Genre> genreCache = new CopyOnWriteArraySet<>();
 
     public CachedGenreRepository() {
         new Thread(() -> updateCache()).start();
+    }
+
+    @Override
+    public List<Genre> findAllByMovieId(Integer movieId) {
+        return jdbcGenreRepository.findAllByMovieId(movieId);
     }
 
     @Override

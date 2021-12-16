@@ -1,0 +1,18 @@
+genres:
+  - genre_name: "genre1"
+countries:
+  - country: "США"
+movies:
+  - name_russian: "Прибытие поезда на вокзал Ла-Сьота"
+    name_native: "The Arrival of a Train"
+    release_date: 1896
+    description: "Первый фильм в истории кинемагографа"
+    rating: 9.9
+    price: 19.99
+    poster_link: "http://link.com"
+genre_to_movie:
+  - genre_id: 1
+    movie_id: 1
+country_to_movie:
+  - country_id: 1
+    movie_id: 1

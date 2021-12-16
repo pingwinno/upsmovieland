@@ -1,5 +1,7 @@
 package com.study.movie.service;
 
+import com.study.country.service.CountryService;
+import com.study.genre.service.GenreService;
 import com.study.movie.model.Movie;
 import com.study.movie.model.Order;
 import com.study.movie.model.OrderCriteria;
@@ -8,15 +10,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class DefaultMovieService implements MovieService {
     private final static Map<String, List<String>> ALLOWED_FIELDS = Map.of("rating", List.of("desc"), "price",
             List.of("asc", "desc"));
     private final MovieRepository movieRepository;
+    private final GenreService genreService;
+    private final CountryService countryService;
 
-    public DefaultMovieService(MovieRepository movieRepository) {
+    public DefaultMovieService(MovieRepository movieRepository, GenreService genreService, CountryService countryService) {
         this.movieRepository = movieRepository;
+        this.genreService = genreService;
+        this.countryService = countryService;
     }
 
     @Override
@@ -61,5 +68,27 @@ public class DefaultMovieService implements MovieService {
                                   .findFirst()
                                   .orElseThrow(() -> new IllegalArgumentException("Wrong arguments: " + params));
         return movieRepository.findAllAndOrderBy(orderCriteria);
+    }
+
+    @Override
+    public List<Movie> getAllOrderByPrice(Order order) {
+        return movieRepository.findAllAndOrderByPrice(order);
+    }
+
+    @Override
+    public List<Movie> getAllOrderByRating() {
+        return movieRepository.findAllAndOrderByRating();
+    }
+
+    @Override
+    public Optional<Movie> getById(Integer id) {
+        var movieOptional = movieRepository.findById(id);
+        if (movieOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        var movie = movieOptional.get();
+        movie.setCountries(countryService.getCountriesOfMovie(id));
+        movie.setGenres(genreService.getAllMoviesGenres(id));
+        return Optional.of(movie);
     }
 }

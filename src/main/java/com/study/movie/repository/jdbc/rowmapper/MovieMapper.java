@@ -1,4 +1,4 @@
-package com.study.movie.repository.jdbc.mapper;
+package com.study.movie.repository.jdbc.rowmapper;
 
 import com.study.movie.model.Movie;
 import org.springframework.jdbc.core.RowMapper;

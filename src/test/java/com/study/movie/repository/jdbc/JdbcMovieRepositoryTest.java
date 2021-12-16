@@ -10,6 +10,7 @@ import com.study.movie.model.OrderCriteria;
 import lombok.SneakyThrows;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,13 +20,13 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @DBRider
@@ -35,17 +36,21 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class JdbcMovieRepositoryTest {
     public static final String DB_USER = "root";
     public static final String DB_PASSWORD = "secret";
-    @Container
-    private static PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres")
+    private static final PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres")
             .withDatabaseName("movie_store")
             .withUsername(DB_USER)
-            .withPassword(DB_PASSWORD);
+            .withPassword(DB_PASSWORD)
+            .withReuse(true);
     @Autowired
     private DataSource dataSource;
     @Autowired
     private JdbcMovieRepository movieRepository;
     private Flyway flyway;
 
+    @BeforeAll
+    static void start() {
+        postgresqlContainer.start();
+    }
 
     @DynamicPropertySource
     static void setDynamicProperties(DynamicPropertyRegistry registry) {
@@ -70,7 +75,7 @@ public class JdbcMovieRepositoryTest {
     }
 
     @Test
-    @DataSet(value = "datasets/movie_without_description.yml")
+    @DataSet(value = "datasets/movie.yml")
     void givenMovieEntity_whenFindAll_thenReturnMovieEntity() {
         var movies = movieRepository.findAll();
         assertFalse(movies.isEmpty());
@@ -85,7 +90,7 @@ public class JdbcMovieRepositoryTest {
     }
 
     @Test
-    @DataSet(value = "datasets/movie_without_description.yml")
+    @DataSet(value = "datasets/movie.yml")
     void givenMovieEntity_whenFindRandom_thenReturnMovieEntity() {
         var movies = movieRepository.findRandom(1);
         assertFalse(movies.isEmpty());
@@ -93,6 +98,22 @@ public class JdbcMovieRepositoryTest {
         assertEquals(1, movieObject.getId());
         assertEquals("Прибытие поезда на вокзал Ла-Сьота", movieObject.getNameRussian());
         assertEquals("The Arrival of a Train", movieObject.getNameNative());
+        assertEquals(1896, movieObject.getYearOfRelease());
+        assertEquals(9.9, movieObject.getRating());
+        assertEquals(19.99, movieObject.getPrice());
+        assertEquals("http://link.com", movieObject.getPicturePath());
+    }
+
+    @Test
+    @DataSet(value = "datasets/movie.yml")
+    void givenMovieEntity_whenFindByIdthenReturnMovieEntity() {
+        var movie = movieRepository.findById(1);
+        assertTrue(movie.isPresent());
+        var movieObject = movie.get();
+        assertEquals(1, movieObject.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота", movieObject.getNameRussian());
+        assertEquals("The Arrival of a Train", movieObject.getNameNative());
+        assertEquals("Первый фильм в истории кинемагографа", movieObject.getDescription());
         assertEquals(1896, movieObject.getYearOfRelease());
         assertEquals(9.9, movieObject.getRating());
         assertEquals(19.99, movieObject.getPrice());
