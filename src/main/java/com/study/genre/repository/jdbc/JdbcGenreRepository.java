@@ -17,8 +17,8 @@ public class JdbcGenreRepository implements GenreRepository {
     private final RowMapper<Genre> rowMapper = new GenreMapper();
 
 
-    public JdbcGenreRepository(NamedParameterJdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public JdbcGenreRepository(NamedParameterJdbcTemplate cachedGenreRepository) {
+        this.jdbcTemplate = cachedGenreRepository;
     }
 
     @Override
