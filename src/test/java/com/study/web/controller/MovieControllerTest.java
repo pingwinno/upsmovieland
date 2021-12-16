@@ -3,9 +3,11 @@ package com.study.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.country.model.Country;
 import com.study.genre.model.Genre;
+import com.study.movie.model.Currency;
 import com.study.movie.model.Movie;
 import com.study.movie.model.Order;
 import com.study.movie.service.MovieService;
+import com.study.web.converter.StringToCurrencyConverter;
 import com.study.web.converter.StringToOrderConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,7 @@ class MovieControllerTest {
         movieServiceMock = mock(MovieService.class);
         var formattingService = new FormattingConversionService();
         formattingService.addConverter(new StringToOrderConverter());
+        formattingService.addConverter(new StringToCurrencyConverter());
         mockMvc = MockMvcBuilders.standaloneSetup(new MovieController(movieServiceMock))
                                  .setConversionService(formattingService)
                                  .build();
@@ -64,7 +67,7 @@ class MovieControllerTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         var jsonMovie = objectMapper.writeValueAsString(expectedMovie);
-        Mockito.when(movieServiceMock.getById(1))
+        Mockito.when(movieServiceMock.getById(1, Currency.UAH))
                .thenReturn(Optional.of(expectedMovie));
         mockMvc.perform(get("/movies/1"))
                .andExpect(status().isOk())
@@ -74,7 +77,7 @@ class MovieControllerTest {
 
     @Test
     void when_getMovieByID_then_return404() throws Exception {
-        Mockito.when(movieServiceMock.getById(1))
+        Mockito.when(movieServiceMock.getById(1, Currency.UAH))
                .thenReturn(Optional.empty());
         mockMvc.perform(get("/movies/1"))
                .andExpect(status().isNotFound());

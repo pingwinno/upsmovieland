@@ -4,6 +4,7 @@ import com.study.country.model.Country;
 import com.study.country.service.CountryService;
 import com.study.genre.model.Genre;
 import com.study.genre.service.GenreService;
+import com.study.movie.model.Currency;
 import com.study.movie.model.Movie;
 import com.study.movie.model.OrderCriteria;
 import com.study.movie.repository.MovieRepository;
@@ -97,7 +98,7 @@ class DefaultMovieServiceTest {
         when(movieRepository.findById(1)).thenReturn(Optional.of(expectedMovie));
         when(countryService.getCountriesOfMovie(1)).thenReturn(List.of(expectedCountry));
         when(genreService.getAllMoviesGenres(1)).thenReturn(List.of(expectedGenre));
-        var optionalMovie = movieService.getById(1);
+        var optionalMovie = movieService.getById(1, Currency.UAH);
         assertTrue(optionalMovie.isPresent());
         var actualMovie = optionalMovie.get();
         assertEquals(1, actualMovie.getId());

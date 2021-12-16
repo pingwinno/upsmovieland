@@ -4,6 +4,7 @@ package com.study.movie.repository.jdbc;
 import com.github.database.rider.core.api.configuration.DBUnit;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.api.DBRider;
+import com.study.TestConfig;
 import com.study.configuration.RootConfig;
 import com.study.movie.model.Order;
 import com.study.movie.model.OrderCriteria;
@@ -31,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 @DBRider
 @ExtendWith(SpringExtension.class)
-@DBUnit(schema = "movie_store", caseSensitiveTableNames = true)
-@ContextConfiguration(classes = {RootConfig.class})
+@DBUnit(caseSensitiveTableNames = true)
+@ContextConfiguration(classes = {TestConfig.class})
 public class JdbcMovieRepositoryTest {
     public static final String DB_USER = "root";
     public static final String DB_PASSWORD = "secret";
@@ -54,10 +55,10 @@ public class JdbcMovieRepositoryTest {
 
     @DynamicPropertySource
     static void setDynamicProperties(DynamicPropertyRegistry registry) {
-        registry.add("db.url", () -> postgresqlContainer.getJdbcUrl());
+        registry.add("db.url", postgresqlContainer::getJdbcUrl);
         registry.add("db.username", () -> DB_USER);
         registry.add("db.password", () -> DB_PASSWORD);
-        registry.add("db.driver.class", () -> postgresqlContainer.getDriverClassName());
+        registry.add("db.driver.class", postgresqlContainer::getDriverClassName);
     }
 
     @SneakyThrows

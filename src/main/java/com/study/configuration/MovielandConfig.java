@@ -1,5 +1,6 @@
 package com.study.configuration;
 
+import com.study.web.converter.StringToCurrencyConverter;
 import com.study.web.converter.StringToOrderConverter;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -12,5 +13,6 @@ public class MovielandConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new StringToOrderConverter());
+        registry.addConverter(new StringToCurrencyConverter());
     }
 }

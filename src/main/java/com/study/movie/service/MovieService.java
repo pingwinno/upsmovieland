@@ -1,5 +1,6 @@
 package com.study.movie.service;
 
+import com.study.movie.model.Currency;
 import com.study.movie.model.Movie;
 import com.study.movie.model.Order;
 
@@ -20,5 +21,5 @@ public interface MovieService {
 
     List<Movie> getAllOrderByRating();
 
-    Optional<Movie> getById(Integer id);
+    Optional<Movie> getById(Integer id, Currency currency);
 }

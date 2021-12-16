@@ -1,7 +1,5 @@
-package com.study.configuration;
+package com.study;
 
-import com.study.web.converter.StringToCurrencyConverter;
-import com.study.web.converter.StringToOrderConverter;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,11 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.format.FormatterRegistry;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 
@@ -22,8 +17,7 @@ import javax.sql.DataSource;
         type = FilterType.ASPECTJ,
         pattern = "com.study.web.*")
 })
-@PropertySource("classpath:application.properties")
-public class RootConfig   implements WebMvcConfigurer {
+public class TestConfig {
 
     @Value("${db.url}")
     private String url;
@@ -42,6 +36,7 @@ public class RootConfig   implements WebMvcConfigurer {
         config.setUsername(username);
         config.setPassword(password);
         config.setDriverClassName(driverClassName);
+        config.setSchema("movie_store");
         return new HikariDataSource(config);
     }
 
@@ -53,10 +48,5 @@ public class RootConfig   implements WebMvcConfigurer {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
-    @Override
-    public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(new StringToOrderConverter());
-        registry.addConverter(new StringToCurrencyConverter());
     }
 }

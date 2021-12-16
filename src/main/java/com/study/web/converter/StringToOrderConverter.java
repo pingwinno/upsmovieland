@@ -6,6 +6,6 @@ import org.springframework.core.convert.converter.Converter;
 public class StringToOrderConverter implements Converter<String, Order> {
     @Override
     public Order convert(String source) {
-        return Order.getOrderByName(source);
+        return Order.getOrderByName(source.toLowerCase());
     }
 }

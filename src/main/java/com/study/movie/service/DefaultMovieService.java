@@ -1,7 +1,9 @@
 package com.study.movie.service;
 
 import com.study.country.service.CountryService;
+import com.study.currency.CurrencyService;
 import com.study.genre.service.GenreService;
+import com.study.movie.model.Currency;
 import com.study.movie.model.Movie;
 import com.study.movie.model.Order;
 import com.study.movie.model.OrderCriteria;
@@ -19,11 +21,13 @@ public class DefaultMovieService implements MovieService {
     private final MovieRepository movieRepository;
     private final GenreService genreService;
     private final CountryService countryService;
+    private final CurrencyService currencyService;
 
-    public DefaultMovieService(MovieRepository movieRepository, GenreService genreService, CountryService countryService) {
+    public DefaultMovieService(MovieRepository movieRepository, GenreService genreService, CountryService countryService, CurrencyService currencyService) {
         this.movieRepository = movieRepository;
         this.genreService = genreService;
         this.countryService = countryService;
+        this.currencyService = currencyService;
     }
 
     @Override
@@ -81,7 +85,7 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public Optional<Movie> getById(Integer id) {
+    public Optional<Movie> getById(Integer id, Currency currency) {
         var movieOptional = movieRepository.findById(id);
         if (movieOptional.isEmpty()) {
             return Optional.empty();
@@ -89,6 +93,9 @@ public class DefaultMovieService implements MovieService {
         var movie = movieOptional.get();
         movie.setCountries(countryService.getCountriesOfMovie(id));
         movie.setGenres(genreService.getAllMoviesGenres(id));
+        if (currency != Currency.UAH) {
+
+        }
         return Optional.of(movie);
     }
 }
