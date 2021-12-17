@@ -13,6 +13,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+;
 
 @Service
 public class DefaultMovieService implements MovieService {
@@ -22,6 +28,7 @@ public class DefaultMovieService implements MovieService {
     private final GenreService genreService;
     private final CountryService countryService;
     private final CurrencyService currencyService;
+    private ExecutorService executors = Executors.newCachedThreadPool();
 
     public DefaultMovieService(MovieRepository movieRepository, GenreService genreService, CountryService countryService, CurrencyService currencyService) {
         this.movieRepository = movieRepository;
@@ -86,15 +93,27 @@ public class DefaultMovieService implements MovieService {
 
     @Override
     public Optional<Movie> getById(Integer id, Currency currency) {
-        var movieOptional = movieRepository.findById(id);
+        var movieFuture = CompletableFuture.supplyAsync(() -> movieRepository.findById(id), executors)
+                                           .orTimeout(5, TimeUnit.SECONDS);
+        var countriesFuture = CompletableFuture.supplyAsync(() -> countryService.getCountriesOfMovie(id), executors)
+                                               .orTimeout(5, TimeUnit.SECONDS);
+        var genresFuture = CompletableFuture.supplyAsync(() -> genreService.getAllMoviesGenres(id), executors)
+                                            .orTimeout(5, TimeUnit.SECONDS);
+        var currencyFuture = CompletableFuture.supplyAsync(() -> currencyService.getConversionRate(currency), executors)
+                                              .orTimeout(5, TimeUnit.SECONDS);
+
+        CompletableFuture.allOf(movieFuture, countriesFuture, currencyFuture).join();
+
+        var movieOptional = movieFuture.join();
         if (movieOptional.isEmpty()) {
             return Optional.empty();
         }
         var movie = movieOptional.get();
-        movie.setCountries(countryService.getCountriesOfMovie(id));
-        movie.setGenres(genreService.getAllMoviesGenres(id));
+        movie.setCountries(countriesFuture.join());
+        movie.setGenres(genresFuture.join());
         if (currency != Currency.UAH) {
-
+            var currencyRate = currencyFuture.join();
+            movie.setPrice(movie.getPrice()/currencyRate);
         }
         return Optional.of(movie);
     }

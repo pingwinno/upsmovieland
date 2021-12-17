@@ -18,7 +18,7 @@ public class HttpCurrencyService implements CurrencyService {
     private final static String URL_TEMPLATE = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json&valcode=%s";
     private final static int ONE_DAY = 86400000;
     private final RestTemplate restTemplate;
-    private final Map<Currency, Double> currencyRates = new ConcurrentHashMap<>();
+    private final Map<Currency, java.lang.Double> currencyRates = new ConcurrentHashMap<>();
 
     public HttpCurrencyService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -30,11 +30,8 @@ public class HttpCurrencyService implements CurrencyService {
     }
 
     @Override
-    public Double convertFromUahTo(Double price, Currency currency) {
-        if (currencyRates.containsKey(currency)) {
-            return price / currencyRates.get(currency);
-        }
-        throw new RuntimeException("Can't get rate");
+    public Double getConversionRate(Currency currency) {
+        return currencyRates.get(currency);
     }
 
     @SneakyThrows

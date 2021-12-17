@@ -2,6 +2,7 @@ package com.study.movie.service;
 
 import com.study.country.model.Country;
 import com.study.country.service.CountryService;
+import com.study.currency.CurrencyService;
 import com.study.genre.model.Genre;
 import com.study.genre.service.GenreService;
 import com.study.movie.model.Currency;
@@ -17,15 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultMovieServiceTest {
@@ -36,6 +33,8 @@ class DefaultMovieServiceTest {
     private GenreService genreService;
     @Mock
     private CountryService countryService;
+    @Mock
+    private CurrencyService currencyService;
     @InjectMocks
     private DefaultMovieService movieService;
 
@@ -94,10 +93,10 @@ class DefaultMovieServiceTest {
         expectedMovie.setPrice(19.99);
         expectedMovie.setPicturePath("http://link.com");
 
-
         when(movieRepository.findById(1)).thenReturn(Optional.of(expectedMovie));
         when(countryService.getCountriesOfMovie(1)).thenReturn(List.of(expectedCountry));
         when(genreService.getAllMoviesGenres(1)).thenReturn(List.of(expectedGenre));
+        when(currencyService.getConversionRate(Currency.UAH)).thenReturn(1.0);
         var optionalMovie = movieService.getById(1, Currency.UAH);
         assertTrue(optionalMovie.isPresent());
         var actualMovie = optionalMovie.get();
@@ -117,7 +116,134 @@ class DefaultMovieServiceTest {
         verify(movieRepository).findById(1);
         verify(countryService).getCountriesOfMovie(1);
         verify(genreService).getAllMoviesGenres(1);
-        verifyNoMoreInteractions(movieRepository, countryService, genreService);
+        verify(currencyService).getConversionRate(Currency.UAH);
+        verifyNoMoreInteractions(movieRepository, countryService, genreService, currencyService);
     }
 
+    @Test
+    void given_movieId_when_getByIdAndCurrencyUsd_thenReturnMovieWithMetadataAndConvertedCurrency() {
+        var expectedGenre = new Genre();
+        expectedGenre.setId(1);
+        expectedGenre.setName("genre1");
+
+        var expectedCountry = new Country();
+        expectedCountry.setId(1);
+        expectedCountry.setName("USA");
+
+        var expectedMovie = new Movie();
+        expectedMovie.setId(1);
+        expectedMovie.setNameRussian("Прибытие поезда на вокзал Ла-Сьота");
+        expectedMovie.setNameNative("The Arrival of a Train");
+        expectedMovie.setDescription("Первый фильм в истории кинемагографа");
+        expectedMovie.setYearOfRelease(1896);
+        expectedMovie.setRating(9.9);
+        expectedMovie.setPrice(27.0);
+        expectedMovie.setPicturePath("http://link.com");
+
+        when(movieRepository.findById(1)).thenReturn(Optional.of(expectedMovie));
+        when(countryService.getCountriesOfMovie(1)).thenReturn(List.of(expectedCountry));
+        when(genreService.getAllMoviesGenres(1)).thenReturn(List.of(expectedGenre));
+        when(currencyService.getConversionRate(Currency.USD)).thenReturn(27.0);
+        var optionalMovie = movieService.getById(1, Currency.USD);
+        assertTrue(optionalMovie.isPresent());
+        var actualMovie = optionalMovie.get();
+        assertEquals(1, actualMovie.getId());
+        assertEquals("Прибытие поезда на вокзал Ла-Сьота", actualMovie.getNameRussian());
+        assertEquals("The Arrival of a Train", actualMovie.getNameNative());
+        assertEquals("Первый фильм в истории кинемагографа", actualMovie.getDescription());
+        assertEquals(1896, actualMovie.getYearOfRelease());
+        assertEquals(9.9, actualMovie.getRating());
+        assertEquals(1.0, actualMovie.getPrice());
+        assertEquals("http://link.com", actualMovie.getPicturePath());
+        assertEquals(expectedGenre, actualMovie.getGenres()
+                                               .get(0));
+        assertEquals(expectedCountry, actualMovie.getCountries()
+                                                 .get(0));
+
+        verify(movieRepository).findById(1);
+        verify(countryService).getCountriesOfMovie(1);
+        verify(genreService).getAllMoviesGenres(1);
+        verify(currencyService).getConversionRate(Currency.USD);
+        verifyNoMoreInteractions(movieRepository, countryService, genreService, currencyService);
+    }
+
+    @Test
+    void given_movieId_when_movieRepositoryResponseTakesMoreThan5Seconds_thenThrowCompletionException() {
+        var expectedGenre = new Genre();
+        var expectedCountry = new Country();
+        var expectedMovie = new Movie();
+
+        when(movieRepository.findById(1)).thenAnswer(invocationOnMock -> {
+            Thread.sleep(10000);
+            return Optional.of(expectedMovie);
+        });
+        when(countryService.getCountriesOfMovie(1)).thenReturn(List.of(expectedCountry));
+        when(genreService.getAllMoviesGenres(1)).thenReturn(List.of(expectedGenre));
+        when(currencyService.getConversionRate(Currency.UAH)).thenReturn(1.0);
+        assertThrows(CompletionException.class, () -> movieService.getById(1, Currency.UAH));
+        verify(movieRepository).findById(1);
+        verify(countryService).getCountriesOfMovie(1);
+        verify(currencyService).getConversionRate(Currency.UAH);
+        verifyNoMoreInteractions(movieRepository, countryService, genreService, currencyService);
+    }
+
+    @Test
+    void given_movieId_when_countryServiceResponseTakesMoreThan5Seconds_thenThrowCompletionException() {
+        var expectedGenre = new Genre();
+        var expectedCountry = new Country();
+        var expectedMovie = new Movie();
+
+        when(movieRepository.findById(1)).thenReturn(Optional.of(expectedMovie));
+        when(countryService.getCountriesOfMovie(1)).thenAnswer(invocationOnMock -> {
+            Thread.sleep(10000);
+            return List.of(expectedCountry);
+        });
+        when(genreService.getAllMoviesGenres(1)).thenReturn(List.of(expectedGenre));
+        when(currencyService.getConversionRate(Currency.UAH)).thenReturn(1.0);
+        assertThrows(CompletionException.class, () -> movieService.getById(1, Currency.UAH));
+        verify(movieRepository).findById(1);
+        verify(countryService).getCountriesOfMovie(1);
+        verify(currencyService).getConversionRate(Currency.UAH);
+        verifyNoMoreInteractions(movieRepository, countryService, genreService, currencyService);
+    }
+
+    @Test
+    void given_movieId_when_genreServiceResponseTakesMoreThan5Seconds_thenThrowCompletionException() {
+        var expectedGenre = new Genre();
+        var expectedCountry = new Country();
+        var expectedMovie = new Movie();
+
+        when(movieRepository.findById(1)).thenReturn(Optional.of(expectedMovie));
+        when(countryService.getCountriesOfMovie(1)).thenReturn(List.of(expectedCountry));
+        when(genreService.getAllMoviesGenres(1)).thenAnswer(invocationOnMock -> {
+            Thread.sleep(10000);
+            return List.of(expectedGenre);
+        });
+        when(currencyService.getConversionRate(Currency.UAH)).thenReturn(1.0);
+        assertThrows(CompletionException.class, () -> movieService.getById(1, Currency.UAH));
+        verify(movieRepository).findById(1);
+        verify(countryService).getCountriesOfMovie(1);
+        verify(currencyService).getConversionRate(Currency.UAH);
+        verifyNoMoreInteractions(movieRepository, countryService, genreService, currencyService);
+    }
+
+    @Test
+    void given_movieId_when_currencyServiceResponseTakesMoreThan5Seconds_thenThrowCompletionException() {
+        var expectedGenre = new Genre();
+        var expectedCountry = new Country();
+        var expectedMovie = new Movie();
+
+        when(movieRepository.findById(1)).thenReturn(Optional.of(expectedMovie));
+        when(countryService.getCountriesOfMovie(1)).thenReturn(List.of(expectedCountry));
+        when(genreService.getAllMoviesGenres(1)).thenReturn(List.of(expectedGenre));
+        when(currencyService.getConversionRate(Currency.UAH)).thenAnswer(invocationOnMock -> {
+            Thread.sleep(10000);
+            return 1.0;
+        });
+        assertThrows(CompletionException.class, () -> movieService.getById(1, Currency.UAH));
+        verify(movieRepository).findById(1);
+        verify(countryService).getCountriesOfMovie(1);
+        verify(currencyService).getConversionRate(Currency.UAH);
+        verifyNoMoreInteractions(movieRepository, countryService, genreService, currencyService);
+    }
 }
