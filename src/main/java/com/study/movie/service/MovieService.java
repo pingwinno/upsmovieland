@@ -22,4 +22,6 @@ public interface MovieService {
     List<Movie> getAllOrderByRating();
 
     Optional<Movie> getById(Integer id, Currency currency);
+
+    Optional<Movie> getByIdAnotherWay(Integer id, Currency currency);
 }

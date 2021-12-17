@@ -8,15 +8,13 @@ import com.study.movie.model.Movie;
 import com.study.movie.model.Order;
 import com.study.movie.model.OrderCriteria;
 import com.study.movie.repository.MovieRepository;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 ;
 
@@ -29,6 +27,7 @@ public class DefaultMovieService implements MovieService {
     private final CountryService countryService;
     private final CurrencyService currencyService;
     private ExecutorService executors = Executors.newCachedThreadPool();
+    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(8);
 
     public DefaultMovieService(MovieRepository movieRepository, GenreService genreService, CountryService countryService, CurrencyService currencyService) {
         this.movieRepository = movieRepository;
@@ -93,13 +92,13 @@ public class DefaultMovieService implements MovieService {
 
     @Override
     public Optional<Movie> getById(Integer id, Currency currency) {
-        var movieFuture = CompletableFuture.supplyAsync(() -> movieRepository.findById(id), executors)
+        var movieFuture = CompletableFuture.supplyAsync(() -> movieRepository.findById(id), scheduledExecutorService)
                                            .orTimeout(5, TimeUnit.SECONDS);
-        var countriesFuture = CompletableFuture.supplyAsync(() -> countryService.getCountriesOfMovie(id), executors)
+        var countriesFuture = CompletableFuture.supplyAsync(() -> countryService.getCountriesOfMovie(id), scheduledExecutorService)
                                                .orTimeout(5, TimeUnit.SECONDS);
-        var genresFuture = CompletableFuture.supplyAsync(() -> genreService.getAllMoviesGenres(id), executors)
+        var genresFuture = CompletableFuture.supplyAsync(() -> genreService.getAllMoviesGenres(id), scheduledExecutorService)
                                             .orTimeout(5, TimeUnit.SECONDS);
-        var currencyFuture = CompletableFuture.supplyAsync(() -> currencyService.getConversionRate(currency), executors)
+        var currencyFuture = CompletableFuture.supplyAsync(() -> currencyService.getConversionRate(currency), scheduledExecutorService)
                                               .orTimeout(5, TimeUnit.SECONDS);
 
         CompletableFuture.allOf(movieFuture, countriesFuture, currencyFuture).join();
@@ -113,7 +112,30 @@ public class DefaultMovieService implements MovieService {
         movie.setGenres(genresFuture.join());
         if (currency != Currency.UAH) {
             var currencyRate = currencyFuture.join();
-            movie.setPrice(movie.getPrice()/currencyRate);
+            movie.setPrice(movie.getPrice() / currencyRate);
+        }
+        return Optional.of(movie);
+    }
+
+    @SneakyThrows
+    @Override
+    public Optional<Movie> getByIdAnotherWay(Integer id, Currency currency) {
+        var movieFuture = executors.submit(() -> movieRepository.findById(id));
+        var countriesFuture = executors.submit(() -> countryService.getCountriesOfMovie(id));
+        var genresFuture = executors.submit(() -> genreService.getAllMoviesGenres(id));
+        var currencyFuture = executors.submit(() -> currencyService.getConversionRate(currency));
+
+
+        var movieOptional = movieFuture.get(5, TimeUnit.SECONDS);
+        if (movieOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        var movie = movieOptional.get();
+        movie.setCountries(countriesFuture.get(5, TimeUnit.SECONDS));
+        movie.setGenres(genresFuture.get(5, TimeUnit.SECONDS));
+        if (currency != Currency.UAH) {
+            var currencyRate = currencyFuture.get(5, TimeUnit.SECONDS);
+            movie.setPrice(movie.getPrice() / currencyRate);
         }
         return Optional.of(movie);
     }
